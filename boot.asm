@@ -11,19 +11,24 @@ init:
   mov     ds, ax
   mov     es, ax
 
-  mov si, msg  ; loads the address of "msg" into SI register
+  mov si, msg;
   mov ah, 0x0e ; sets AH to 0xe (function teletype)
+  call print_char
+  jmp done
 print_char:
+  start:
   mov al, [esi]
   cmp al, 0 ; compares AL to zero
-  je done  
+  jz end_start
   inc esi
   int 0x10  ; print to screen using function 0xe of interrupt 0x10
-  jmp print_char ; repeat with next byte
+  jmp start ; repeat with next byte
+  end_start:
+  ret
 done:
   hlt ; stop execution
 
-msg: db "Hello Bootloader! ", 0 ; we need to explicitely put the zero byte here
+msg: db "Hello Bootloader!", 0 ; we need to explicitely put the zero byte here
 
 times 510-($-$$) db 0           ; fill the output file with zeroes until 510 bytes are full
 dw 0xaa55                       ; magic number that tells the BIOS this is bootable
