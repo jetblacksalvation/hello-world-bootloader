@@ -1,3 +1,4 @@
 run:
-	nasm -f bin boot.asm -o boot.bin
-	qemu-system-x86_64 -fda boot.bin
+	nasm  boot.asm -o boot.bin -f bin
+	sudo dd if=boot.bin bs=512 of=boot.img
+	qemu-system-x86_64 boot.img

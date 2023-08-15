@@ -1,26 +1,28 @@
-bits 16     ; We're dealing with 16 bit code
+[bits 16]    ; use 16 bits
+[org 0x7c00] ; sets the start address
+mov bp,0x9000
+mov sp,bp
 
-org 0x7c00  ; Inform the assembler of the starting location for this code
+init: 
 
-boot:
-    mov si, message ; Point SI register to message
-    mov ah, 0x0e    ; Set higher bits to the display character command
+  xor     ax, ax
+  mov     ss, ax
+  mov     sp, ax
+  mov     ds, ax
+  mov     es, ax
 
-.loop:
-    lodsb       ; Load the character within the AL register, and increment SI
-    cmp al, 0   ; Is the AL register a null byte?
-    je halt     ; Jump to halt
-    int 0x10    ; Trigger video services interrupt
-    ;basically puts?
-    jmp .loop   ; Loop again
+  mov si, msg  ; loads the address of "msg" into SI register
+  mov ah, 0x0e ; sets AH to 0xe (function teletype)
+print_char:
+  lodsb     ; loads the current byte from SI into AL and increments the address in SI
+  cmp al, 0 ; compares AL to zero
+  je done   ; if AL == 0, jump to "done"
+  int 0x10  ; print to screen using function 0xe of interrupt 0x10
+  jmp print_char ; repeat with next byte
+done:
+  hlt ; stop execution
 
-halt:
-    hlt         ; Stop
+msg: db "Hello world!", 0 ; we need to explicitely put the zero byte here
 
-message:
-    db "Hello World!", 0
-
-; Mark the device as bootable
-; im guessing that the dollar signs get the stack length? or something to do with memory...
-times 510-($-$$) db 0 ; Add any additional zeroes to make 510 bytes in total
-dw 0xAA55 ; Write the final 2 bytes as the magic number 0x55aa, remembering x86 little endian
+times 510-($-$$) db 0           ; fill the output file with zeroes until 510 bytes are full
+dw 0xaa55                       ; magic number that tells the BIOS this is bootable
