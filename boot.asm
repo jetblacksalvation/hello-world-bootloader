@@ -1,34 +1,65 @@
-[bits 16]    ; use 16 bits
-[org 0x7c00] ; sets the start address
-mov bp,0x9000
-mov sp,bp
+org 0x7C00
+bits 16
 
-init: 
 
-  xor     ax, ax
-  mov     ss, ax
-  mov     sp, ax
-  mov     ds, ax
-  mov     es, ax
 
-  mov si, msg;
-  mov ah, 0x0e ; sets AH to 0xe (function teletype)
-  call print_char
-  jmp done
-print_char:
-  start:
-  mov al, [esi]
-  cmp al, 0 ; compares AL to zero
-  jz end_start
-  inc esi
-  int 0x10  ; print to screen using function 0xe of interrupt 0x10
-  jmp start ; repeat with next byte
-  end_start:
-  ret
-done:
-  hlt ; stop execution
 
-msg: db "Hello Bootloader!", 0 ; we need to explicitely put the zero byte here
+start:
+    jmp main
 
-times 510-($-$$) db 0           ; fill the output file with zeroes until 510 bytes are full
-dw 0xaa55                       ; magic number that tells the BIOS this is bootable
+
+;
+; Prints a string to the screen
+; Params:
+;   - ds:si points to string
+;
+puts:
+    ; save registers we will modify
+    push si
+    push ax
+    push bx
+
+.loop:
+    lodsb               ; loads next character in al
+    cmp al, 0           ; verify if next character is null?
+    jz .done
+
+    mov ah, 0x0E        ; call bios interrupt
+    mov bh, 0           ; set page number to 0
+    int 0x10
+
+    jmp .loop
+
+.done:
+    pop bx
+    pop ax
+    pop si    
+    ret
+    
+
+main:
+    ; setup data segments
+    mov ax, 0           ; can't set ds/es directly
+    mov ds, ax
+    mov es, ax
+    
+    ; setup stack
+    mov ss, ax
+    mov sp, 0x7C00      ; stack grows downwards from where we are loaded in memory
+
+    ; print hello world message
+    mov si, msg_hello
+    call puts
+
+    hlt
+
+.halt:
+    jmp .halt
+
+
+
+msg_hello: db 'Hello world!', 0
+
+
+times 510-($-$$) db 0
+dw 0AA55h
