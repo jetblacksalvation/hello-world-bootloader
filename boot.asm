@@ -1,18 +1,17 @@
 [bits 16]    ; use 16 bits
 [org 0x7c00] ; sets the start address
-mov bp,0x9000
-mov sp,bp
+jmp init
 
 init: 
 
-  xor     ax, ax
+  mov     ax, 0
   mov     ss, ax
   mov     sp, ax
   mov     ds, ax
   mov     es, ax
 
-  mov si, msg  ; loads the address of "msg" into SI register
-  mov ah, 0x0e ; sets AH to 0xe (function teletype)
+  mov si, msg  
+  mov ah, 0x0e
 print_char:
   mov al, [esi]
   cmp al, 0 ; compares AL to zero
