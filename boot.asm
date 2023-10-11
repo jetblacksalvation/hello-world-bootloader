@@ -1,7 +1,14 @@
 [bits 16]    ; use 16 bits
 [org 0x7c00] ; sets the start address
 jmp init
-
+; use fdisk to repair MBR partition
+; fdisk /dev/sda 
+; g
+; n p 
+; t 1
+; 1 
+; w
+  
 init: 
 
   mov     ax, 0
