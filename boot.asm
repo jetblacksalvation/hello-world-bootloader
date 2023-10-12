@@ -8,7 +8,7 @@ jmp init
 ; t 1
 ; 1 
 ; w
-  
+;abd  fdsa
 init: 
 
   mov     ax, 0
