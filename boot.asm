@@ -1,12 +1,26 @@
-org 0x7C00
-bits 16
+[bits 16]    ; use 16 bits
+[org 0x7c00] ; sets the start address
+jmp start
 
 
 
 
 start:
+    mov     ax, 0
+    mov     ss, ax
+    mov     sp, ax
+    mov     ds, ax
+    mov     es, ax
+
     jmp main
 
+; use fdisk to repair MBR partition
+; fdisk /dev/sda 
+; g
+; n p 
+; t 1
+; 1 
+; w
 
 ;
 ; Prints a string to the screen
@@ -14,7 +28,7 @@ start:
 ;   - ds:si points to string
 ;
 puts:
-    ; save registers we will modify
+    ; save registers we will modifyqemu-system-x86_64
     push si
     push ax
     push bx
@@ -39,17 +53,43 @@ puts:
 
 main:
     ; setup data segments
-    mov ax, 0           ; can't set ds/es directly
-    mov ds, ax
-    mov es, ax
+
     
     ; setup stack
-    mov ss, ax
-    mov sp, 0x7C00      ; stack grows downwards from where we are loaded in memory
+    ;mov sp, 0x7C00      
 
     ; print hello world message
     mov si, msg_hello
     call puts
+
+    xor ax, ax    ; make sure ds is set to 0
+    mov ds, ax
+    ;cld
+    ; start putting in values:
+    mov ah, 2h    ; int13h function 2
+    mov al, 63    ; we want to read 63 sectors
+    mov ch, 0     ; from cylinder number 0
+    mov cl, 2     ; the sector number 2 - second sector (starts from 1, not 0)
+    mov dh, 0     ; head number 0
+    xor bx, bx    
+    mov es, bx    ; es should be 0
+
+
+    ;mov bx, 7e00h ; 512bytes from origin address 7c00h
+    int 13h
+    cmp ah, 0 
+    jnz false
+    ;true
+    mov si ,msg_load_sucess
+    jmp pass
+    false:
+        mov si,msg_load_fail
+        
+    pass:
+        call puts
+
+    ;jmp 7e00h     ; jump to the next sector
+
 
     hlt
 
@@ -58,8 +98,9 @@ main:
 
 
 
-msg_hello: db 'Hello world!', 0
-
+msg_hello: db 'Hello world!',0xa,0xd, 0
+msg_load_fail: db 'failed to load',0xa,0xd, 0 
+msg_load_sucess: db 'success to load',0xa,0xd, 0 
 
 times 510-($-$$) db 0
 dw 0AA55h
