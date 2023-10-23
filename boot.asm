@@ -39,7 +39,7 @@ puts:
     jz .done
 
     mov ah, 0x0E        ; call bios interrupt
-    mov bh, 0           ; set page number to 0
+    ;mov bh, 0           ; set page number to 0
     int 0x10
 
     jmp .loop
@@ -56,18 +56,17 @@ main:
 
     
     ; setup stack
-    ;mov sp, 0x7C00      
+    mov sp, 0x7C00      
 
     ; print hello world message
-    mov si, msg_hello
-    call puts
+
 
     xor ax, ax    ; make sure ds is set to 0
     mov ds, ax
-    ;cld
+    cld
     ; start putting in values:
     mov ah, 2h    ; int13h function 2
-    mov al, 63    ; we want to read 63 sectors
+    mov al, 1    ; we want to read 63 sectors
     mov ch, 0     ; from cylinder number 0
     mov cl, 2     ; the sector number 2 - second sector (starts from 1, not 0)
     mov dh, 0     ; head number 0
@@ -75,7 +74,8 @@ main:
     mov es, bx    ; es should be 0
 
 
-    ;mov bx, 7e00h ; 512bytes from origin address 7c00h
+    mov bx, 0x2000
+ ; 512bytes from origin address 7c00h
     int 13h
     cmp ah, 0 
     jnz false
@@ -87,8 +87,10 @@ main:
         
     pass:
         call puts
-
-    ;jmp 7e00h     ; jump to the next sector
+    ; mov si, 7e00h
+    ; call puts
+    jmp 0x0:0x2000
+     ; jump to the next sector
 
 
     hlt
