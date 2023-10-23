@@ -3,8 +3,8 @@
 jmp start
 
 
-
-
+;sudo dd if=boot2.bin of=/dev/sdb seek=1
+;sudo dd if=boot.bin of=/dev/sdb
 start:
     mov     ax, 0
     mov     ss, ax
