@@ -79,10 +79,20 @@ GDT_descriptor:
 
 [bits 32]
 start_protected_mode:
-    mov al, 65
-    mov ah, 0x0f
+    mov ax, DATA_SEG
+    mov ds, ax
+    mov ss, ax
+    mov es, ax
+    mov fs, ax
+    mov gs, ax
+
+    ;Redefine stack pointer to larger value now we have 4GiB of memory to work with
+    mov ebp, 0x90000
+    mov esp, ebp
+
+    mov al, 'A'
+    mov ax, 0x0F
     mov [0xb8000], ax
-    hlt
     jmp $
 
 
