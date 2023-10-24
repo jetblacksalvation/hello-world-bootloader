@@ -30,7 +30,7 @@ puts:
     ret
     
 main2:
-
+    ;
 mov si, m_load
 
 
@@ -38,6 +38,9 @@ mov si, m_load
 call puts
 CODE_SEG equ GDT_code - GDT_start
 DATA_SEG equ GDT_data - GDT_start
+mov si, m_protected
+
+call puts
 
 cli
 lgdt [GDT_descriptor]
@@ -87,12 +90,14 @@ start_protected_mode:
     mov gs, ax
 
     ;Redefine stack pointer to larger value now we have 4GiB of memory to work with
-    mov ebp, 0x90000
-    mov esp, ebp
+    ; mov ebp, 0x90000
+    ; mov esp, ebp
 
-    mov al, 'A'
-    mov ax, 0x0F
-    mov [0xb8000], ax
+    ; mov al, 'A'
+    ; mov ax, 0x0F
+    ; mov [0xb8000], ax
+
+    ; jmp 0x3000
     jmp $
 
 
