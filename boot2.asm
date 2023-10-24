@@ -4,6 +4,8 @@
 [org 0x2000] ; sets the start address
 jmp main2
 
+m_load: db 'second sector!',0xa,0xd, 0 
+m_protected: db 'entering protected!',0xa,0xd, 0 
 puts:
     ; save registers we will modifyqemu-system-x86_64
     push si
@@ -28,7 +30,11 @@ puts:
     ret
     
 main2:
+
 mov si, m_load
+
+
+
 call puts
 CODE_SEG equ GDT_code - GDT_start
 DATA_SEG equ GDT_data - GDT_start
@@ -73,27 +79,12 @@ GDT_descriptor:
 
 [bits 32]
 start_protected_mode:
-    mov ax, GDT_data
-    mov ds, ax
-    mov ss, ax
-    mov es, ax
-    mov fs, ax
-    mov gs, ax
-
-    mov ebp, 0x90000
-    mov esp, ebp
-
-    mov al, 'A'
-
-    mov ax, 0x0F41   ; BrightWhiteOnBlack 'A'
+    mov al, 65
+    mov ah, 0x0f
     mov [0xb8000], ax
-
-
-    ; mov [0xb8000], ax
+    hlt
     jmp $
 
 
 ; start_protected_mode:
 
-m_load: db 'second sector!',0xa,0xd, 0 
-m_protected: db 'entering protected!',0xa,0xd, 0 
