@@ -89,6 +89,9 @@ main:
         call puts
     ; mov si, 7e00h
     ; call puts
+    in al, 0x92
+    or al, 2
+    out 0x92, al
     jmp 0x0:0x2000
      ; jump to the next sector
 
